@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Table View - Base Code</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+<style>
+  .table-card {
+    aspect-ratio: 1 / 1;
+    padding: 10px;
+  }
+
+  /* Fluid grid: columns adapt to whatever width is available on any device,
+     instead of jumping at fixed breakpoints. Each table stays a sensible size. */
+  .table-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    gap: 0.65rem;
+  }
+  @media (min-width: 480px) {
+    .table-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+  }
+
+  /* table top: rounded square, shadow tuned to read well on both light and dark themes */
+  .table-top {
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    border: 2px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      inset 0 1px 2px rgba(255,255,255,0.15),
+      inset 0 -3px 6px rgba(0,0,0,0.18),
+      0 3px 6px rgba(0,0,0,0.25);
+  }
+
+  /* chairs: small rounded bars on each side of the table.
+     Color comes from Tailwind/DaisyUI utility classes on the element (theme-aware),
+     this block only handles shape and position. */
+  .chair {
+    position: absolute;
+    border-radius: 4px;
+  }
+  .chair-top, .chair-bottom {
+    width: 34%;
+    height: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .chair-top { top: -2px; }
+  .chair-bottom { bottom: -2px; }
+  .chair-left, .chair-right {
+    width: 8px;
+    height: 34%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .chair-left { left: -2px; }
+  .chair-right { right: -2px; }
+</style>
+</head>
+<body class="bg-base-200 min-h-screen overflow-x-hidden">
+
+<div class="max-w-7xl mx-auto p-3 sm:p-4">
+
+<div class="bg-base-100 rounded-box shadow-sm p-3 sm:p-4 mb-4">
+  <!-- Page header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+    <h1 class="text-lg sm:text-xl font-bold">Table View</h1>
+    <div class="flex flex-wrap gap-2">
+      <label class="swap swap-rotate">
+  <!-- this hidden checkbox controls the state -->
+  <input type="checkbox" class="theme-controller" value="synthwave" />
+
+  <!-- sun icon -->
+  <svg
+    class="swap-off h-10 w-10 fill-current"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24">
+    <path
+      d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z" />
+  </svg>
+
+  <!-- moon icon -->
+  <svg
+    class="swap-on h-10 w-10 fill-current"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24">
+    <path
+      d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
+  </svg>
+</label>
+      <button class="btn btn-error btn-sm text-white">Delivery</button>
+      <button class="btn btn-error btn-sm text-white">Take Away</button>
+    </div>
+  </div>
+
+  <!-- Action row -->
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+    <div class="flex flex-wrap gap-2">
+      <button class="btn btn-error btn-sm text-white" onclick="addTable()">+ Add Table</button>
+    </div>
+
+    <!-- Legend -->
+    <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
+      <button class="btn btn-ghost btn-xs">Move KOT / Items</button>
+      <span class="flex items-center gap-1 whitespace-nowrap"><span class="w-3 h-3 rounded-full bg-base-300 border border-base-content/20 shrink-0"></span> Blank Table</span>
+      <span class="flex items-center gap-1 whitespace-nowrap"><span class="w-3 h-3 rounded-full bg-info shrink-0"></span> Running Table</span>
+      <span class="flex items-center gap-1 whitespace-nowrap"><span class="w-3 h-3 rounded-full bg-success shrink-0"></span> Printed Table</span>
+      <span class="flex items-center gap-1 whitespace-nowrap"><span class="w-3 h-3 rounded-full bg-warning shrink-0"></span> Paid Table</span>
+      <span class="flex items-center gap-1 whitespace-nowrap"><span class="w-3 h-3 rounded-full bg-error shrink-0"></span> Running KOT Table</span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <span class="text-sm opacity-70 whitespace-nowrap">Floor Plan</span>
+      <select class="select select-bordered select-sm w-full sm:w-auto">
+        <option>Ground Floor</option>
+        <option>First Floor</option>
+        <option>Second Floor</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+  <!-- ===== Section Switch: A/C / Non A/C ===== -->
+  <div class="flex gap-2 mb-4">
+    <button id="tab-ac" class="btn btn-sm btn-error text-white" onclick="switchSection('ac', this)">A/C</button>
+    <button id="tab-nonac" class="btn btn-sm btn-outline btn-error" onclick="switchSection('nonac', this)">Non A/C</button>
+  </div>
+
+  <div class="overflow-hidden">
+    <div id="tab-track" class="flex w-[200%] transition-transform duration-300 ease-out">
+      <div id="ac-section" class="table-grid w-1/2 mb-8"></div>
+      <div id="nonac-section" class="table-grid w-1/2 mb-8"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Order Details Modal -->
+<dialog id="order_modal" class="modal">
+  <div class="modal-box w-11/12 max-w-md">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+    </form>
+
+    <h3 class="font-bold text-lg" id="modal-table-title">Table</h3>
+    <p class="text-sm opacity-60 mb-4" id="modal-table-status">Status</p>
+
+    <div class="overflow-x-auto">
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="text-center">Qty</th>
+            <th class="text-right">Rate</th>
+            <th class="text-right">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="modal-order-items">
+          <!-- rows injected by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <div id="modal-empty-state" class="text-center opacity-50 py-6 hidden">
+      No active order on this table.
+    </div>
+
+    <div class="divider my-2" id="modal-divider"></div>
+
+    <div class="flex justify-between text-sm mb-1" id="modal-subtotal-row">
+      <span class="opacity-70">Subtotal</span>
+      <span id="modal-subtotal">₹0</span>
+    </div>
+    <div class="flex justify-between text-sm mb-3" id="modal-tax-row">
+      <span class="opacity-70">Tax (5%)</span>
+      <span id="modal-tax">₹0</span>
+    </div>
+    <div class="flex justify-between font-bold text-base" id="modal-total-row">
+      <span>Total</span>
+      <span id="modal-total">₹0</span>
+    </div>
+
+    <div class="modal-action">
+      <form method="dialog" class="flex gap-2 w-full justify-end">
+        <button class="btn btn-sm">Close</button>
+        <button class="btn btn-sm btn-primary" id="modal-kot-btn">Send KOT</button>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<script>
+  // status -> tailwind/daisyui classes
+  const statusStyle = {
+    blank:   { card: "bg-base-100 border-base-300" },
+    running: { card: "bg-info/30 border-info" },
+    printed: { card: "bg-success/30 border-success" },
+    paid:    { card: "bg-warning/30 border-warning" },
+    kot:     { card: "bg-error/80 border-error" },
+  };
+
+  const statusLabel = {
+    blank: "Blank Table",
+    running: "Running Table",
+    printed: "Printed Table",
+    paid: "Paid Table",
+    kot: "Running KOT Table",
+  };
+
+  // Sample per-table orders — keyed as "SECTION-TABLENUM", e.g. "AC-9".
+  // Replace this with real order data fetched from your backend.
+  const orders = {
+    "AC-2":  [ { item: "Cheeseburger", qty: 2, rate: 199 }, { item: "Fries", qty: 1, rate: 99 } ],
+    "AC-5":  [ { item: "Veg Pizza", qty: 1, rate: 349 }, { item: "Cola", qty: 2, rate: 49 } ],
+    "AC-6":  [ { item: "Family Combo", qty: 1, rate: 599 }, { item: "Iced Tea", qty: 2, rate: 79 } ],
+    "AC-8":  [ { item: "Chicken Wrap", qty: 3, rate: 179 } ],
+    "AC-9":  [ { item: "Paneer Tikka", qty: 1, rate: 229 }, { item: "Garlic Naan", qty: 2, rate: 59 }, { item: "Cola", qty: 2, rate: 49 } ],
+    "AC-12": [ { item: "Grilled Sandwich", qty: 2, rate: 159 } ],
+    "AC-14": [ { item: "Family Combo", qty: 1, rate: 599 } ],
+    "NONAC-2": [ { item: "Masala Dosa", qty: 2, rate: 119 } ],
+    "NONAC-5": [ { item: "Chow Mein", qty: 1, rate: 149 }, { item: "Spring Roll", qty: 1, rate: 129 } ],
+    "NONAC-8": [ { item: "Idli Sambhar", qty: 3, rate: 89 } ],
+  };
+
+  function openOrderModal(section, num, status) {
+    const key = `${section}-${num}`;
+    const items = orders[key] || [];
+
+    document.getElementById("modal-table-title").textContent =
+      `Table ${num} (${section === "AC" ? "A/C" : "Non A/C"})`;
+    document.getElementById("modal-table-status").textContent = statusLabel[status] || "Blank Table";
+
+    const rowsEl = document.getElementById("modal-order-items");
+    const emptyEl = document.getElementById("modal-empty-state");
+    const hasItems = items.length > 0;
+
+    rowsEl.parentElement.parentElement.classList.toggle("hidden", !hasItems); // hide table wrapper
+    emptyEl.classList.toggle("hidden", hasItems);
+    ["modal-divider", "modal-subtotal-row", "modal-tax-row", "modal-total-row"].forEach(id =>
+      document.getElementById(id).classList.toggle("hidden", !hasItems)
+    );
+
+    rowsEl.innerHTML = items.map(i => `
+      <tr>
+        <td>${i.item}</td>
+        <td class="text-center">${i.qty}</td>
+        <td class="text-right">₹${i.rate}</td>
+        <td class="text-right">₹${i.qty * i.rate}</td>
+      </tr>`).join("");
+
+    const subtotal = items.reduce((sum, i) => sum + i.qty * i.rate, 0);
+    const tax = Math.round(subtotal * 0.05);
+    document.getElementById("modal-subtotal").textContent = `₹${subtotal}`;
+    document.getElementById("modal-tax").textContent = `₹${tax}`;
+    document.getElementById("modal-total").textContent = `₹${subtotal + tax}`;
+
+    // Paid tables show "Empty Table" (clear the table) instead of "Send KOT"
+    const actionBtn = document.getElementById("modal-kot-btn");
+    modalTableRef = { section, num };
+    if (status === "paid") {
+      actionBtn.textContent = "Empty Table";
+      actionBtn.onclick = emptyTable;
+    } else {
+      actionBtn.textContent = "Send KOT";
+      actionBtn.onclick = null;
+    }
+
+    document.getElementById("order_modal").showModal();
+  }
+
+  let modalTableRef = null;
+
+  function emptyTable() {
+    if (!modalTableRef) return;
+    const { section, num } = modalTableRef;
+    const list = section === "AC" ? acTables : nonAcTables;
+    const t = list.find(t => t.n === num);
+    if (t) t.s = "blank";
+    delete orders[`${section}-${num}`];
+    renderSection(section === "AC" ? "ac" : "nonac");
+    document.getElementById("order_modal").close();
+  }
+
+  function tableCard(section, num, status) {
+    const s = statusStyle[status] || statusStyle.blank;
+    return `
+      <div class="table-card relative flex items-center justify-center cursor-pointer transition hover:-translate-y-0.5 hover:brightness-110"
+           onmousedown="startLongPress(this)" onmouseup="endLongPress()" onmouseleave="endLongPress()"
+           ontouchstart="startLongPress(this)" ontouchend="endLongPress()"
+           onclick="handleTableClick(event, '${section}', ${num}, '${status}')">
+        <!-- cancel / remove button, shown on long-press -->
+        <button class="cancel-btn hidden absolute -top-2 -right-2 btn btn-circle btn-xs btn-error text-white z-10"
+                onclick="removeTable(event, '${section}', ${num})">✕</button>
+
+        <!-- chairs -->
+        <span class="chair chair-top bg-base-300 border border-base-content/10"></span>
+        <span class="chair chair-bottom bg-base-300 border border-base-content/10"></span>
+        <span class="chair chair-left bg-base-300 border border-base-content/10"></span>
+        <span class="chair chair-right bg-base-300 border border-base-content/10"></span>
+
+        <!-- table top -->
+        <div class="table-top ${s.card}">
+          <span class="text-sm font-semibold text-base-content">Table ${num}</span>
+        </div>
+      </div>`;
+  }
+
+  // Sample data — replace with real table/order status from your backend
+  const acTables = [
+    { n: 1, s: "blank" }, { n: 2, s: "running" }, { n: 3, s: "blank" }, { n: 4, s: "blank" },
+    { n: 5, s: "running" }, { n: 6, s: "paid" }, { n: 7, s: "blank" }, { n: 8, s: "running" },
+    { n: 9, s: "kot" }, { n: 10, s: "blank" }, { n: 11, s: "blank" }, { n: 12, s: "running" },
+    { n: 13, s: "blank" }, { n: 14, s: "printed" }, { n: 15, s: "blank" },
+  ];
+
+  const nonAcTables = [
+    { n: 1, s: "blank" }, { n: 2, s: "kot" }, { n: 3, s: "blank" }, { n: 4, s: "blank" },
+    { n: 5, s: "kot" }, { n: 6, s: "blank" }, { n: 7, s: "blank" }, { n: 8, s: "kot" },
+    { n: 9, s: "blank" },
+  ];
+
+  document.getElementById("ac-section").innerHTML = acTables.map(t => tableCard("AC", t.n, t.s)).join("");
+  document.getElementById("nonac-section").innerHTML = nonAcTables.map(t => tableCard("NONAC", t.n, t.s)).join("");
+
+  let currentSection = "ac";
+
+  function switchSection(section, tabEl) {
+    currentSection = section;
+    const track = document.getElementById("tab-track");
+    track.style.transform = section === "ac" ? "translateX(0%)" : "translateX(-50%)";
+
+    const acBtn = document.getElementById("tab-ac");
+    const nonacBtn = document.getElementById("tab-nonac");
+    const activeBtn = section === "ac" ? acBtn : nonacBtn;
+    const inactiveBtn = section === "ac" ? nonacBtn : acBtn;
+
+    activeBtn.classList.add("btn-error");
+    activeBtn.classList.remove("btn-outline");
+    inactiveBtn.classList.add("btn-outline", "btn-error");
+    inactiveBtn.classList.remove("text-white");
+    activeBtn.classList.add("text-white");
+  }
+
+  function renderSection(section) {
+    if (section === "ac") {
+      document.getElementById("ac-section").innerHTML = acTables.map(t => tableCard("AC", t.n, t.s)).join("");
+    } else {
+      document.getElementById("nonac-section").innerHTML = nonAcTables.map(t => tableCard("NONAC", t.n, t.s)).join("");
+    }
+  }
+
+  function addTable() {
+    const list = currentSection === "ac" ? acTables : nonAcTables;
+    const nextNum = list.length ? Math.max(...list.map(t => t.n)) + 1 : 1;
+    list.push({ n: nextNum, s: "blank" });
+    renderSection(currentSection);
+  }
+
+  // ---- Long-press to reveal a cancel/remove button on a table ----
+  let longPressTimer = null;
+  let longPressFired = false;
+
+  function startLongPress(el) {
+    longPressFired = false;
+    longPressTimer = setTimeout(() => {
+      longPressFired = true;
+      document.querySelectorAll(".cancel-btn").forEach(b => b.classList.add("hidden"));
+      el.querySelector(".cancel-btn").classList.remove("hidden");
+    }, 550);
+  }
+
+  function endLongPress() {
+    clearTimeout(longPressTimer);
+  }
+
+  function handleTableClick(e, section, num, status) {
+    if (longPressFired) {
+      longPressFired = false; // suppress the modal open that follows a long-press release
+      return;
+    }
+    openOrderModal(section, num, status);
+  }
+
+  function removeTable(e, section, num) {
+    e.stopPropagation();
+    const list = section === "AC" ? acTables : nonAcTables;
+    const idx = list.findIndex(t => t.n === num);
+    if (idx > -1) list.splice(idx, 1);
+    renderSection(section === "AC" ? "ac" : "nonac");
+  }
+
+  // hide any visible cancel button when clicking elsewhere on the page
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".table-card")) {
+      document.querySelectorAll(".cancel-btn").forEach(b => b.classList.add("hidden"));
+    }
+  });
+</script>
+
+</body>
+</html>
